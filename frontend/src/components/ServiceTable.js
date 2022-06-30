@@ -17,6 +17,7 @@ const ServiceTable = () => {
     limit: 10,
     currency: CURRENCY
   })
+  const [status, setStatus] = useState(false)
 
   const getData = async() => {
     const res = await get('coins', params)
@@ -25,6 +26,7 @@ const ServiceTable = () => {
 
   useEffect(() => {
     getData()
+    setStatus(true)
   }, [params])
 
   useEffect(() => {
@@ -229,7 +231,7 @@ const ServiceTable = () => {
       className: 'table-graph',
       hidden: selectedRowKeys.includes('priceGraph') ? false : true,
       sorter: (a, b) => a.priceGraph - b.priceGraph,
-      render: (_, record) => (<Chart record={record && record}/>)
+      render: (_, record) => (<Chart record={record && record} status={status} setStatus={setStatus}/>)
     },
     {
       title: <Popover 
@@ -254,7 +256,26 @@ const ServiceTable = () => {
       className: 'table-plus',
       width: '20px',
       dataIndex: 'key',
-      render: (_, record) => (<EllipsisOutlined className='table-row-item-icon' style={{ color: '#fff', fontSize: '20px' }}/>)
+      render: (_, record) => (
+        <Popover 
+          placement="bottomRight" 
+          content={(<Table 
+            showHeader={false}
+            scroll={{
+              y: 260
+            }}
+            style={{ maxWidth: '290px' }}
+            className='tableabc'
+            rowSelection={rowSelection}
+            pagination={false}
+            columns={columnsPopover}
+            dataSource={items}
+          ></Table> )} 
+          trigger="click"
+        >
+          <EllipsisOutlined className='table-row-item-icon' style={{ color: '#fff', fontSize: '20px' }}/>
+        </Popover>
+      )
     },
   ].filter(item => !item.hidden);
 
@@ -266,8 +287,6 @@ const ServiceTable = () => {
   }
 
   return (
-    // <Tabs defaultActiveKey="1" onChange={onChange} style={{ padding: '40px' }}>
-    
     <Tabs defaultActiveKey="1" style={{ padding: '40px 0' }}>
       <TabPane tab="Cryptocurrencies" key="1">
         <Table 
